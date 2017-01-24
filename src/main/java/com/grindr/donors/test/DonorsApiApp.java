@@ -45,14 +45,26 @@ public class DonorsApiApp {
         int avgOfTotalDonars = 0;
         int avgOfTotalStudents = 0;
 
-        Response webResponse = given().
-                queryParam("keywords", searchParameter).
-                queryParam("costToCompleteRange", costToCompleteRangeString).
-                queryParam("max", maxSearchResults).
-                queryParam("state", stateStr).
-                queryParam("sortBy", sortStr).
-                when().
-                get();
+        Response webResponse;
+
+        if(searchParameter == null) {
+           webResponse = given().
+                    queryParam("costToCompleteRange", costToCompleteRangeString).
+                    queryParam("max", maxSearchResults).
+                    queryParam("state", stateStr).
+                    queryParam("sortBy", sortStr).
+                    when().
+                    get();
+        } else {
+           webResponse = given().
+                    queryParam("keywords", searchParameter).
+                    queryParam("costToCompleteRange", costToCompleteRangeString).
+                    queryParam("max", maxSearchResults).
+                    queryParam("state", stateStr).
+                    queryParam("sortBy", sortStr).
+                    when().
+                    get();
+        }
 
         JsonPath jsonPath = new JsonPath(webResponse.getBody().asString());
 
