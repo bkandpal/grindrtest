@@ -31,7 +31,7 @@ public class DonorsApiApp {
 
         //Capture the search parameter passed as an argument
         for(int i = 0; i < args.length; i++) {
-            System.out.println(args[i]);
+            System.out.println("Search Parameter: " + args[i]);
             searchParameter = args[0];
         }
         parseDonorsApiResponse(searchParameter);
@@ -44,7 +44,8 @@ public class DonorsApiApp {
         Double avgOfCostToComplete = 0.0;
         int avgOfTotalDonars = 0;
         int avgOfTotalStudents = 0;
-
+        int totalProposalCount = 0;
+        
         Response webResponse;
 
         if(searchParameter == null) {
@@ -71,11 +72,13 @@ public class DonorsApiApp {
         //Get total number of proposals from response
         List totalNumOfProposals = webResponse.getBody().jsonPath().getList("proposals", String.class);
 
+        totalProposalCount = totalNumOfProposals.size();
+        
         //If there are proposals returned in the response
-        if(totalNumOfProposals.size() > 0) {
+        if(totalProposalCount > 0) {
 
             //Assert when search results are more than maxSearchResults
-            assertThat(totalNumOfProposals.size(), is(lessThanOrEqualTo(maxSearchResults)));
+            assertThat(totalProposalCount, is(lessThanOrEqualTo(maxSearchResults)));
 
             //Assert when results are not limited to stateFullName
             assertThat(webResponse.getBody().jsonPath().getList("proposals.stateFullName", String.class), everyItem(is(stateFullName)));
@@ -87,7 +90,7 @@ public class DonorsApiApp {
             assertThat(costToComplete, everyItem(lessThan(fundingCostRangeMax)));
 
             //Print the data from json and get average of values
-            for (int i = 0; i < totalNumOfProposals.size(); i++) {
+            for (int i = 0; i < totalProposalCount; i++) {
                 System.out.println("\n\n********************************** Details from Proposal Number: " + (i + 1) + " ***********************************************");
                 System.out.println("Title: " + jsonPath.get("proposals[" + i + "].title"));
                 System.out.println("Short Description: " + jsonPath.get("proposals[" + i + "].shortDescription"));
@@ -105,11 +108,11 @@ public class DonorsApiApp {
 
             //Print average of values
             System.out.println("********************************************* ==>Average<== ******************************************************");
-            System.out.println("AVG Total Price: " + avgOfTotalPrice);
-            System.out.println("AVG Percent Funded: " + avgOfPercentFunded);
-            System.out.println("Num Donors: " + avgOfTotalDonars);
-            System.out.println("Cost To Complete: " + avgOfCostToComplete);
-            System.out.println("Num Students: " + avgOfTotalStudents);
+            System.out.println("AVG Total Price: " + avgOfTotalPrice/totalProposalCount);
+            System.out.println("AVG Percent Funded: " + avgOfPercentFunded/totalProposalCount);
+            System.out.println("AVG Number Of Donors: " + avgOfTotalDonars/totalProposalCount);
+            System.out.println("AVG Cost To Complete: " + avgOfCostToComplete/totalProposalCount);
+            System.out.println("AVG Number Of Students: " + avgOfTotalStudents/totalProposalCount);
             System.out.println("******************************************************************************************************************\n\n");
         } else {
             //Print info when no Proposal found
